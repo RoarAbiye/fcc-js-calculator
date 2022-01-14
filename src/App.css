@@ -1,7 +1,3 @@
-@font-face {
-    font-family: 'digital-font';
-    src: url(./fonts/DIGITALDREAMNARROW.ttf);
-}
 body {
     display: flex;
     align-items: center;
@@ -45,7 +41,6 @@ body {
     background-color: rgba(90, 50, 50, 0.7);
 }
 .display {
-    font-family: digital-font;
     display: flex;
     justify-content: center;
     align-items: flex-end;
