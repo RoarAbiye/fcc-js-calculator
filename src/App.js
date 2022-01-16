@@ -2,133 +2,181 @@ import './App.css';
 import React from 'react';
 import ReactFCCtest from 'react-fcctest';
 
+const ACTION = {
+    ADD_DIGIT : "add-digit",
+    DELETE : "delete",
+    CLEAR : "clear",
+    CHOOSE_OPERATION : "choose-operation",
+    EVALUATE : "evaluate"
+}
+
 class App extends React.Component {
     constructor(props){
         super(props);
-        this.state = {currentOperand: "", 
-                      prevOpperand: "",
-                      opperation: false
+        this.state = {currentOperand: "0", 
+                      prevOpperand: "0",
+                      overwrite: false,
+                      operator: null,
+                      negativ: false
         }
         
         this.dispatch = this.dispatch.bind(this);
     }
 
-    clickHandler = (action) => {
-        this.dispatch(action)
-    };
     
     dispatch = action => {
-        //shorthand for state variables
-    const C_OP = this.state.currentOperand;
     switch(action.type) {
-        case "ADD_DIGIT":
-                    this.setState({currentOperand: C_OP + action.payload})
-                
+        case ACTION.ADD_DIGIT:
+                if (action.payload === "0" && this.state.currentOperand === "0"){
+                    return this.state
+                }
+                else if (this.state.overwrite){
+                    this.setState({currentOperand: action.payload, overwrite: false})
+                }
+                    else if (action.payload !== "0" && this.state.currentOperand === "0") {
+                return this.setState({currentOperand: action.payload})
+                }
+                    else if (action.payload === "." && this.state.currentOperand.includes(".")){
+                    return this.state
+                }
+                    else {
+                this.setState({currentOperand: this.state.currentOperand + action.payload})
+                }
             break;
-        case "DELET":
-            this.setState({currentOperand: C_OP.slice(0,-1)});
+
+        case ACTION.DELETE:
+            if (this.state.currentOperand === "0") return this.state
+            this.setState({currentOperand: this.state.currentOperand.slice(0,-1)});
             break;
-        case "CALCULATE":
-            this.calculator(action.payload)
+            
+        case ACTION.CLEAR:
+            this.setState({ currentOperand: "0", prevOpperand: "0", operator: null})
             break;
-        default:
-            return
-    }}
-    
-    calculator = (operator) => {
-        switch(operator) {
-            case 'ADD':
-                this.setState({ prevOpperand: this.state.currentOperand, 
-                                currentOperand: "", 
-                                opperation: "ADD"
-                              }) 
-                break
-            case 'SUBTRACT':
-                this.setState({ prevOpperand: this.state.currentOperand, 
-                                currentOperand: "", 
-                                opperation: 'SUBTRACT'
-                              }) 
-                break
-            case 'DIVIDE':
-                this.setState({ prevOpperand: this.state.currentOperand, 
-                                currentOperand: "", 
-                                opperation: "DIVIDE"
-                              }) 
-                break
-            case 'MULTIPLY':
-                this.setState({ prevOpperand: this.state.currentOperand, 
-                                currentOperand: "", 
-                                opperation: "MULTIPLY"
-                              }) 
-                break
-            default:
-                return
+
+        case ACTION.CHOOSE_OPERATION:
+            if (this.state.currentOperand === "0" && this.state.prevOpperand === "0"){
+                return this.state;
+            }
+            else if (this.state.prevOpperand === "0" && this.state.operator === null) {
+                this.setState({prevOpperand: this.state.currentOperand,
+                               currentOperand: "0",
+                               operator: action.payload
+                              })
+            }
+            else {
+                this.setState({
+                               prevOpperand: this.evaluate(this.state), 
+                               currentOperand: "0", 
+                               operator: action.payload,
+                              })
+            }
+            break;
+// 3+5*6-2/4
+        case ACTION.EVALUATE:
+            this.setState({
+                            currentOperand: this.evaluate(this.state),
+                            prevOpperand: "0",
+                            overwrite: true,
+                            operator: null
+                         })
+        default: return
+
         }
+
     }
     
-    evaluate = () => {
-        const float_C_OP = parseFloat(this.state.currentOperand)
-        const float_P_OP = parseFloat(this.state.prevOpperand)
-        const opperation = this.state.opperation;
-        let result;
+    evaluate = ({operator, currentOperand, prevOpperand}) => {
+        
+        const float_C_OP = parseFloat(currentOperand)
+        const float_P_OP = parseFloat(prevOpperand)
+        let result = 0;
 
-        switch(opperation){
-           case 'ADD':
-               result = float_C_OP + float_P_OP;
-               this.setState({currentOperand: result})
+        if (isNaN(float_C_OP) || isNaN(float_P_OP)) return ""
+        switch(operator){
+           case '+':
+               result =  float_P_OP + float_C_OP;
                break
-           case 'SUBTRACT':
-               result = float_C_OP - float_P_OP;
-               this.setState({currentOperand: result})
+           case '-':
+               result =  float_P_OP - float_C_OP;
                break
-           case 'MULTIPLY':
-               result = float_C_OP * float_P_OP;
-               this.setState({currentOperand: result})
+           case '*':
+               result =  float_P_OP * float_C_OP;
                break
-           case 'DIVIDE':
-               result = float_C_OP / float_P_OP;
-               this.setState({currentOperand: result})
+           case '÷':
+               result =  float_P_OP / float_C_OP ;
                break
            default:
                return
         }
-
+        return result.toString();
     }
+    // calculator = () => {
+    //      const operator = this.state.oprator;
+
+    //     switch(operator) {
+    //         case '+':
+    //             this.setState({ prevOpperand: this.state.currentOperand, 
+    //                             currentOperand: "", 
+    //                             opperation: '+'
+    //                           }) 
+    //             break
+    //         case '-':
+    //             this.setState({ prevOpperand: this.state.currentOperand, 
+    //                             currentOperand: "", 
+    //                             opperation: '-'
+    //                           }) 
+    //             break
+    //         case '÷':
+    //             this.setState({ prevOpperand: this.state.currentOperand, 
+    //                             currentOperand: "", 
+    //                             opperation: "÷"
+    //                           }) 
+    //             break
+    //         case '*':
+    //             this.setState({ prevOpperand: this.state.currentOperand, 
+    //                             currentOperand: "", 
+    //                             opperation: "*"
+    //                           }) 
+    //             break
+    //         default:
+    //             return
+    //     }
+    //}
+    
 render() {
     return (
         <div>
         <ReactFCCtest />
         <div className="calculator">
             <div   className="display">
-                <div className="prev-operand">{this.state.prevOpperand}</div>
+                <div className="prev-operand">
+                    <span className='operator'>{this.state.operator}</span>
+                    {this.state.prevOpperand} 
+                </div>
                 <div className="current-operand" id="display" >{this.state.currentOperand}</div>
             </div>
-            <button id="clear" onClick={()=>{this.setState({ currentOperand: "0",
-                                                             prevOpperand: ""
-                                                           })
-                                            }
-                                        }
+            <button id="clear" onClick={()=>{this.dispatch({type: ACTION.CLEAR})}}
             >AC</button>
 
-            <button id="delet" onClick={()=> {this.dispatch({type: "DELET", payload: ""})}} >C</button>
+            <button id="delet" onClick={()=> {this.dispatch({type: ACTION.DELETE})}} >C</button>
 
-            <button id = "one"    onClick={() => {this.dispatch({type: "ADD_DIGIT", payload: '1'})}}>1</button>
-            <button id = "two"    onClick={() => {this.dispatch({type: "ADD_DIGIT", payload: '2'})}}>2</button>
-            <button id = "three"  onClick={() => {this.dispatch({type: "ADD_DIGIT", payload: '3'})}}>3</button>
-            <button id = "four"   onClick={() => {this.dispatch({type: "ADD_DIGIT", payload: '4'})}}>4</button>
-            <button id = "five"   onClick={() => {this.dispatch({type: "ADD_DIGIT", payload: '5'})}}>5</button>
-            <button id = "six"    onClick={() => {this.dispatch({type: "ADD_DIGIT", payload: '6'})}}>6</button>
-            <button id = "seven"  onClick={() => {this.dispatch({type: "ADD_DIGIT", payload: '7'})}}>7</button>
-            <button id = "eight"  onClick={() => {this.dispatch({type: "ADD_DIGIT", payload: '8'})}}>8</button>
-            <button id = "nine"   onClick={() => {this.dispatch({type: "ADD_DIGIT", payload: '9'})}}>9</button>
-            <button id = "zero"   onClick={() => {this.dispatch({type: "ADD_DIGIT", payload: '0'})}}>0</button>
-            <button id = "decimal"onClick={() => {this.dispatch({type: "ADD_DIGIT", payload: '.'})}}>.</button>
+            <button id = "one"    onClick={() => {this.dispatch({type: ACTION.ADD_DIGIT, payload: '1'})}}>1</button>
+            <button id = "two"    onClick={() => {this.dispatch({type: ACTION.ADD_DIGIT, payload: '2'})}}>2</button>
+            <button id = "three"  onClick={() => {this.dispatch({type: ACTION.ADD_DIGIT, payload: '3'})}}>3</button>
+            <button id = "four"   onClick={() => {this.dispatch({type: ACTION.ADD_DIGIT, payload: '4'})}}>4</button>
+            <button id = "five"   onClick={() => {this.dispatch({type: ACTION.ADD_DIGIT, payload: '5'})}}>5</button>
+            <button id = "six"    onClick={() => {this.dispatch({type: ACTION.ADD_DIGIT, payload: '6'})}}>6</button>
+            <button id = "seven"  onClick={() => {this.dispatch({type: ACTION.ADD_DIGIT, payload: '7'})}}>7</button>
+            <button id = "eight"  onClick={() => {this.dispatch({type: ACTION.ADD_DIGIT, payload: '8'})}}>8</button>
+            <button id = "nine"   onClick={() => {this.dispatch({type: ACTION.ADD_DIGIT, payload: '9'})}}>9</button>
+            <button id = "zero"   onClick={() => {this.dispatch({type: ACTION.ADD_DIGIT, payload: '0'})}}>0</button>
+            <button id = "decimal"onClick={() => {this.dispatch({type: ACTION.ADD_DIGIT, payload: '.'})}}>.</button>
 
-            <button id="equals"      onClick={this.evaluate} >=</button>
-            <button id="add"         onClick={() => {this.dispatch({type: "CALCULATE", payload: "ADD"})}}       >+</button>
-            <button id="subtract"    onClick={() => {this.dispatch({type: "CALCULATE", payload: "SUBTRACT"})}}  >-</button>
-            <button id="multiply"    onClick={() => {this.dispatch({type: "CALCULATE", payload: "MULTIPLY"})}}  >*</button>
-            <button id="divide"      onClick={() => {this.dispatch({type: "CALCULATE", payload: "DIVIDE"})}}    >/</button>
+            <button id="equals"      onClick={() => {this.dispatch({type: ACTION.EVALUATE})}} >=</button>
+            <button id="add"         onClick={() => {this.dispatch({type: ACTION.CHOOSE_OPERATION, payload: "+"})}}       >+</button>
+            <button id="subtract"    onClick={() => {this.dispatch({type: ACTION.CHOOSE_OPERATION, payload: "-"})}}  >-</button>
+            <button id="multiply"    onClick={() => {this.dispatch({type: ACTION.CHOOSE_OPERATION, payload: "*"})}}  >*</button>
+            <button id="divide"      onClick={() => {this.dispatch({type: ACTION.CHOOSE_OPERATION, payload: "÷"})}}    >÷</button>
         </div>
         </div>
     );

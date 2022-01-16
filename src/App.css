@@ -9,17 +9,17 @@ body {
     grid-template-columns:1fr 1fr 1fr 1fr;
     grid-gap: .07em;
     justify-content:center;
-    background-color: teal;
+    /* background-color: teal; */
     box-shadow:
-      0 2.8px 2.2px   rgba(0, 0, 0, 0.03),
-      0 6.7px 5.3px   rgba(0, 0, 0, 0.04),
-      0 12.5px 10px   rgba(0, 0, 0, 0.06),
-      0 22.3px 17.9px rgba(0, 0, 0, 0.07),
-      0 41.8px 33.4px rgba(0, 0, 0, 0.08),
-      0 100px 80px    rgba(0, 0, 0, 0.12)
+      1 2.8px 2.2px   rgba(0, 0, 0, 0.03),
+      1 6.7px 5.3px   rgba(0, 0, 0, 0.04),
+      1 12.5px 10px   rgba(0, 0, 0, 0.06),
+      1 22.3px 17.9px rgba(0, 0, 0, 0.07),
+      1 41.8px 33.4px rgba(0, 0, 0, 0.08),
+      1 100px 80px    rgba(0, 0, 0, 0.12)
     ;
     /* box-shadow: .5em .5em black; */
-    border: 0.2em solid rgba(0, 0, 0, 0.2);
+    /* border: 0.2em solid rgba(0, 0, 0, 0.2); */
     padding: 2em;
     border-radius: .5em;
     width: 100%;
@@ -45,16 +45,16 @@ body {
     justify-content: center;
     align-items: flex-end;
     flex-direction: column;
-    font-weight: 500;
     text-align: right;
     border-radius: .2em;
     height: 5em;
-    background-color: #fafafa;
-    color: dimgrey;
+    background-color: dimgrey;
+    color: rgba(230, 230, 230, .9);
     grid-column: 1/5;
     grid-row: 1/1;
     padding-right: .5em;
-    margin-bottom: 1em;
+    /* margin-bottom: 1em; */
+    position: relative;
 }
 
 .prev-operand , .current-operand{
@@ -65,12 +65,21 @@ body {
     min-height: 10%;
 }
 .prev-operand {
-    color: gray;
+    color: ghostwhite;
     font-weight: 600;
+    font-size: 16px;
 }
 .current-operand{
-    color: tomato;
+    color: whitesmoke;
     font-weight: 700;
+    font-size: 18px;
+}
+.operator {
+    position: absolute;
+    left: 0;
+    top: 0;
+    padding: 1em;
+
 }
 #clear {
     width: 100%;
