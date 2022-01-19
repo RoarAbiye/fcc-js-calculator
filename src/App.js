@@ -1,7 +1,6 @@
 import './App.css';
 import React from 'react';
 import ReactFCCtest from 'react-fcctest';
-import { evaluate, isNaN, std } from 'mathjs';
 
 
 const ACTION = {
@@ -96,6 +95,7 @@ class App extends React.Component {
                     operator: "",
                     overwrite: true
                          })
+            break
         default: return
         }
     }
@@ -110,7 +110,7 @@ render() {
         <ReactFCCtest />
         <div>
             <div className='header'>
-                <h1>JAVASCRIPT CALCULATOR</h1>
+                <h4>JAVASCRIPT CALCULATOR</h4>
             </div>
             <div className="display">
                 <div className="prev-operand"> {this.state.prevOpperand} </div>
