@@ -1,6 +1,15 @@
 import './App.css';
 import React from 'react';
 import ReactFCCtest from 'react-fcctest';
+import { evaluate, isNaN, std } from 'mathjs';
+
+const OPS_SIGNS = /([\-\+\/\*]){2}$/; 
+const OSIGNS = /(\+\-|\*\-|\/\-|\*\*)$/ 
+
+String.prototype.replaceLast = function (search, replace) {
+    return this.replace(search, replace);
+}
+
 
 const ACTION = {
     ADD_DIGIT : "add-digit",
@@ -14,7 +23,7 @@ class App extends React.Component {
     constructor(props){
         super(props);
         this.state = {currentOperand: "0", 
-                      prevOpperand: "0",
+                      prevOpperand: "98689*-",
                       overwrite: false,
                       operator: null,
                       negativ: false
@@ -23,126 +32,122 @@ class App extends React.Component {
         this.dispatch = this.dispatch.bind(this);
     }
 
-    
+   // 5 * - + 5  
     dispatch = action => {
     switch(action.type) {
         case ACTION.ADD_DIGIT:
-                if (action.payload === "0" && this.state.currentOperand === "0"){
+            if(this.state.overwrite) {
+                this.setState({
+                        currentOperand: action.payload, 
+                        overwrite: false,
+                    })
+                }
+                else if (action.payload === "0" && this.state.currentOperand === "0"){
                     return this.state
                 }
-                else if (this.state.overwrite){
-                    this.setState({currentOperand: action.payload, overwrite: false})
-                }
-                    else if (action.payload !== "0" && this.state.currentOperand === "0") {
-                return this.setState({currentOperand: action.payload})
-                }
-                    else if (action.payload === "." && this.state.currentOperand.includes(".")){
+                else if (action.payload === "." && this.state.currentOperand.includes(".")){
                     return this.state
                 }
-                    else {
-                this.setState({currentOperand: this.state.currentOperand + action.payload})
+                else if (this.state.currentOperand === "0"){
+                    this.setState({currentOperand: action.payload})
+                }
+                else {
+                this.setState({
+                            currentOperand: this.state.currentOperand + action.payload,
+                                
+                    })
                 }
             break;
-
+//5 * - + 5
+// 3 + 5 * 6 - 2 / 4
         case ACTION.DELETE:
             if (this.state.currentOperand === "0") return this.state
             this.setState({currentOperand: this.state.currentOperand.slice(0,-1)});
             break;
-            
         case ACTION.CLEAR:
             this.setState({ currentOperand: "0", prevOpperand: "0", operator: null})
             break;
-
         case ACTION.CHOOSE_OPERATION:
-            if (this.state.currentOperand === "0" && this.state.prevOpperand === "0"){
-                return this.state;
-            }
-            else if (this.state.prevOpperand === "0" && this.state.operator === null) {
-                this.setState({prevOpperand: this.state.currentOperand,
-                               currentOperand: "0",
-                               operator: action.payload
-                              })
-            }
-            else {
-                this.setState({
-                               prevOpperand: this.evaluate(this.state), 
-                               currentOperand: "0", 
-                               operator: action.payload,
-                              })
-            }
+            if (this.state.prevOpperand === 0 && this.state.currentOperand === '0') {
+                console.log("stageone")
+                    return this.state;
+                }
+            if(/\D*\-$/.test(this.state.prevOpperand)) {
+                console.log("stageTwo")
+                       this.setState({prevOpperand: this.state.prevOpperand.slice(0,-2) + action.payload}) 
+                }
+            if (this.state.prevOpperand.match(/\D{2,2}/))  {
+                console.log("stageThree")
+                    this.setState({prevOpperand: this.state.prevOpperand.replace(/\D*$/, action.payload)})
+                    return
+                }
+            if(this.state.prevOpperand === "0") {
+                console.log("stageFour")
+               this.setState({
+                     prevOpperand: this.state.currentOperand + action.payload,
+                     currentOperand: "0"})
+                } else { 
+                console.log("stageFive")
+                    if(this.state.currentOperand === '0'){ 
+                        if(action.payload === '-') {
+                            this.setState({prevOpperand: this.state.prevOpperand + action.payload})
+                        }
+
+                        return this.state;
+
+                    }
+                    this.setState({
+                        prevOpperand: this.state.prevOpperand   +
+                                      this.state.currentOperand +
+                                      action.payload,
+                        currentOperand: "0"
+                                      
+                    })
+                  }
             break;
-// 3+5*6-2/4
         case ACTION.EVALUATE:
             this.setState({
-                            currentOperand: this.evaluate(this.state),
-                            prevOpperand: "0",
-                            overwrite: true,
-                            operator: null
+                    currentOperand: this.evaluate(this.state.prevOpperand + 
+                                                  this.state.currentOperand
+                                                 ),
+                    prevOpperand: '0',
+                    operator: "",
+                    overwrite: true
                          })
         default: return
-
         }
-
     }
     
-    evaluate = ({operator, currentOperand, prevOpperand}) => {
+    evaluate = (str) => {
+           return (Function ("return " + str)()) 
+
+        // const current = parseFloat(currentOperand);
+        // const prev    = parseFloat(prevOpperand);
+        // let result = 0;
+        // if(isNaN(current) || isNaN(prev)) return "0";
         
-        const float_C_OP = parseFloat(currentOperand)
-        const float_P_OP = parseFloat(prevOpperand)
-        let result = 0;
+        // switch(operator) {
+        //     case '+':
+        //         result = prev + current;
+        //         break
+        //     case '-':
+        //         result = prev - current;
+        //         break
+        //     case '*':
+        //         result = prev * current;
+        //         break
+        //     case '/':
+        //         result = prev / current;
+        //         break
+        // }
+        
+        // return result.toString();
 
-        if (isNaN(float_C_OP) || isNaN(float_P_OP)) return ""
-        switch(operator){
-           case '+':
-               result =  float_P_OP + float_C_OP;
-               break
-           case '-':
-               result =  float_P_OP - float_C_OP;
-               break
-           case '*':
-               result =  float_P_OP * float_C_OP;
-               break
-           case '÷':
-               result =  float_P_OP / float_C_OP ;
-               break
-           default:
-               return
-        }
-        return result.toString();
+
+        // console.log(str)
+       // return Function ("return " + `${str}`)()
     }
-    // calculator = () => {
-    //      const operator = this.state.oprator;
 
-    //     switch(operator) {
-    //         case '+':
-    //             this.setState({ prevOpperand: this.state.currentOperand, 
-    //                             currentOperand: "", 
-    //                             opperation: '+'
-    //                           }) 
-    //             break
-    //         case '-':
-    //             this.setState({ prevOpperand: this.state.currentOperand, 
-    //                             currentOperand: "", 
-    //                             opperation: '-'
-    //                           }) 
-    //             break
-    //         case '÷':
-    //             this.setState({ prevOpperand: this.state.currentOperand, 
-    //                             currentOperand: "", 
-    //                             opperation: "÷"
-    //                           }) 
-    //             break
-    //         case '*':
-    //             this.setState({ prevOpperand: this.state.currentOperand, 
-    //                             currentOperand: "", 
-    //                             opperation: "*"
-    //                           }) 
-    //             break
-    //         default:
-    //             return
-    //     }
-    //}
-    
 render() {
     return (
         <div>
@@ -176,7 +181,7 @@ render() {
             <button id="add"         onClick={() => {this.dispatch({type: ACTION.CHOOSE_OPERATION, payload: "+"})}}       >+</button>
             <button id="subtract"    onClick={() => {this.dispatch({type: ACTION.CHOOSE_OPERATION, payload: "-"})}}  >-</button>
             <button id="multiply"    onClick={() => {this.dispatch({type: ACTION.CHOOSE_OPERATION, payload: "*"})}}  >*</button>
-            <button id="divide"      onClick={() => {this.dispatch({type: ACTION.CHOOSE_OPERATION, payload: "÷"})}}    >÷</button>
+            <button id="divide"      onClick={() => {this.dispatch({type: ACTION.CHOOSE_OPERATION, payload: "/"})}}    >÷</button>
         </div>
         </div>
     );

@@ -3,6 +3,7 @@ body {
     align-items: center;
     justify-content: center;
     margin: 5em;
+    background-color: linen;
 }
 .calculator {
     display: grid;
@@ -22,7 +23,7 @@ body {
     /* border: 0.2em solid rgba(0, 0, 0, 0.2); */
     padding: 2em;
     border-radius: .5em;
-    width: 100%;
+    /* width: 500px; */
 }
 .calculator>button {
     width: 100%;
@@ -67,7 +68,7 @@ body {
 .prev-operand {
     color: ghostwhite;
     font-weight: 600;
-    font-size: 16px;
+    font-size: 12px;
 }
 .current-operand{
     color: whitesmoke;
