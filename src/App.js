@@ -3,13 +3,6 @@ import React from 'react';
 import ReactFCCtest from 'react-fcctest';
 import { evaluate, isNaN, std } from 'mathjs';
 
-const OPS_SIGNS = /([\-\+\/\*]){2}$/; 
-const OSIGNS = /(\+\-|\*\-|\/\-|\*\*)$/ 
-
-String.prototype.replaceLast = function (search, replace) {
-    return this.replace(search, replace);
-}
-
 
 const ACTION = {
     ADD_DIGIT : "add-digit",
@@ -23,16 +16,12 @@ class App extends React.Component {
     constructor(props){
         super(props);
         this.state = {currentOperand: "0", 
-                      prevOpperand: "98689*-",
+                      prevOpperand: "0",
                       overwrite: false,
-                      operator: null,
-                      negativ: false
         }
-        
         this.dispatch = this.dispatch.bind(this);
     }
 
-   // 5 * - + 5  
     dispatch = action => {
     switch(action.type) {
         case ACTION.ADD_DIGIT:
@@ -58,8 +47,6 @@ class App extends React.Component {
                     })
                 }
             break;
-//5 * - + 5
-// 3 + 5 * 6 - 2 / 4
         case ACTION.DELETE:
             if (this.state.currentOperand === "0") return this.state
             this.setState({currentOperand: this.state.currentOperand.slice(0,-1)});
@@ -69,25 +56,20 @@ class App extends React.Component {
             break;
         case ACTION.CHOOSE_OPERATION:
             if (this.state.prevOpperand === 0 && this.state.currentOperand === '0') {
-                console.log("stageone")
                     return this.state;
                 }
             if(/\D*\-$/.test(this.state.prevOpperand)) {
-                console.log("stageTwo")
                        this.setState({prevOpperand: this.state.prevOpperand.slice(0,-2) + action.payload}) 
                 }
             if (this.state.prevOpperand.match(/\D{2,2}/))  {
-                console.log("stageThree")
                     this.setState({prevOpperand: this.state.prevOpperand.replace(/\D*$/, action.payload)})
                     return
                 }
             if(this.state.prevOpperand === "0") {
-                console.log("stageFour")
                this.setState({
                      prevOpperand: this.state.currentOperand + action.payload,
                      currentOperand: "0"})
                 } else { 
-                console.log("stageFive")
                     if(this.state.currentOperand === '0'){ 
                         if(action.payload === '-') {
                             this.setState({prevOpperand: this.state.prevOpperand + action.payload})
@@ -120,46 +102,22 @@ class App extends React.Component {
     
     evaluate = (str) => {
            return (Function ("return " + str)()) 
-
-        // const current = parseFloat(currentOperand);
-        // const prev    = parseFloat(prevOpperand);
-        // let result = 0;
-        // if(isNaN(current) || isNaN(prev)) return "0";
-        
-        // switch(operator) {
-        //     case '+':
-        //         result = prev + current;
-        //         break
-        //     case '-':
-        //         result = prev - current;
-        //         break
-        //     case '*':
-        //         result = prev * current;
-        //         break
-        //     case '/':
-        //         result = prev / current;
-        //         break
-        // }
-        
-        // return result.toString();
-
-
-        // console.log(str)
-       // return Function ("return " + `${str}`)()
     }
 
 render() {
     return (
         <div>
         <ReactFCCtest />
-        <div className="calculator">
-            <div   className="display">
-                <div className="prev-operand">
-                    <span className='operator'>{this.state.operator}</span>
-                    {this.state.prevOpperand} 
-                </div>
-                <div className="current-operand" id="display" >{this.state.currentOperand}</div>
+        <div>
+            <div className='header'>
+                <h1>JAVASCRIPT CALCULATOR</h1>
             </div>
+            <div className="display">
+                <div className="prev-operand"> {this.state.prevOpperand} </div>
+                <div className="current-operand" id="display">{this.state.currentOperand}</div>
+            </div>
+
+            <div className="calculator">
             <button id="clear" onClick={()=>{this.dispatch({type: ACTION.CLEAR})}}
             >AC</button>
 
@@ -182,6 +140,7 @@ render() {
             <button id="subtract"    onClick={() => {this.dispatch({type: ACTION.CHOOSE_OPERATION, payload: "-"})}}  >-</button>
             <button id="multiply"    onClick={() => {this.dispatch({type: ACTION.CHOOSE_OPERATION, payload: "*"})}}  >*</button>
             <button id="divide"      onClick={() => {this.dispatch({type: ACTION.CHOOSE_OPERATION, payload: "/"})}}    >÷</button>
+        </div>
         </div>
         </div>
     );
